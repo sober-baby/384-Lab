@@ -30,57 +30,21 @@ def compute_utility(board, color):
     
 
 def compute_heuristic(board, color):
+    # IMPLEMENT! 
     """
-    A heuristic incorporating:
-      1 corner board locations
-      2) # moves for me minus # moves for opponent
-      3) weighting in opening/mid/end-game stages
-      4) disk difference
-      
+    Method to heuristic value of board, to be used if we are at a depth limit.
+    INPUT: a game state and the player that is in control
+    OUTPUT: an integer that represents heuristic value
     """
-
-    #  disk difference
-    dark_count, light_count = get_score(board)
     if color == 1:
-        my_score, opp_score = dark_count, light_count
+        return get_score(board)[0] - get_score(board)[1]
     else:
-        my_score, opp_score = light_count, dark_count
-    disk_diff = my_score - opp_score
-
-    # difference in number of available moves
-    my_moves = len(get_possible_moves(board, color))
-    opp_moves = len(get_possible_moves(board, 2 if color == 1 else 1))
-    move_num = my_moves - opp_moves
-
-    # checking corners
-    n = len(board)  
-    corners = [(0, 0), (0, n - 1), (n - 1, 0), (n - 1, n - 1)]
-    corner_weight = 25
-    my_corners = 0
-    opp_corners = 0
-    for (r, c) in corners:
-        if board[r][c] == color:
-            my_corners += 1
-        elif board[r][c] == opposite(color):
-            opp_corners += 1
-    corner_diff = (my_corners - opp_corners) * corner_weight
-
-    # variying of weights based on game stage
-    total_squares = n * n
-    empty_squares = sum(row.count(0) for row in board)
-    filled_squares = total_squares - empty_squares
-    fraction_filled = filled_squares / total_squares
-
-    if fraction_filled < 0.33:
-        #want more moves
-        return 3 * move_num + corner_diff + disk_diff
-    elif fraction_filled < 0.8:
-        #consider getting more corners
-        return move_num + 2 * corner_diff + 2 * disk_diff
-    else:
-        #max disk diff
-        return move_num + corner_diff + 4 * disk_diff
-
+        return get_score(board)[1] - get_score(board)[0]
+    
+    #simple heurostic function, CHANGE LATER
+    current_moves = get_possible_moves(board, color)
+    opp_moves = get_possible_moves(board, opposite(color))
+    return len(current_moves) - len(opp_moves)
 
 ############ MINIMAX ###############################
 def minimax_min_node(board, color, limit, caching = 0):
